@@ -1,0 +1,3 @@
+[submodule "hugo/using-data/hugo-learn-blog-template"]
+	path = hugo/using-data/hugo-learn-blog-template
+	url = git@github.com:constantinosgeorgiou/hugo-learn-blog-template.git
