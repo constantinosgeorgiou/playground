@@ -1,0 +1,3 @@
+SELECT *
+FROM city
+WHERE city.COUNTRYCODE = 'JPN'
