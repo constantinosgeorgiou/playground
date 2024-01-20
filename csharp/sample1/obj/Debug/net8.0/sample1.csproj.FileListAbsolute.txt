@@ -1,0 +1,15 @@
+/home/constg/Documents/playground/csharp/sample1/bin/Debug/net8.0/sample1
+/home/constg/Documents/playground/csharp/sample1/bin/Debug/net8.0/sample1.deps.json
+/home/constg/Documents/playground/csharp/sample1/bin/Debug/net8.0/sample1.runtimeconfig.json
+/home/constg/Documents/playground/csharp/sample1/bin/Debug/net8.0/sample1.dll
+/home/constg/Documents/playground/csharp/sample1/bin/Debug/net8.0/sample1.pdb
+/home/constg/Documents/playground/csharp/sample1/obj/Debug/net8.0/sample1.GeneratedMSBuildEditorConfig.editorconfig
+/home/constg/Documents/playground/csharp/sample1/obj/Debug/net8.0/sample1.AssemblyInfoInputs.cache
+/home/constg/Documents/playground/csharp/sample1/obj/Debug/net8.0/sample1.AssemblyInfo.cs
+/home/constg/Documents/playground/csharp/sample1/obj/Debug/net8.0/sample1.csproj.CoreCompileInputs.cache
+/home/constg/Documents/playground/csharp/sample1/obj/Debug/net8.0/sample1.sourcelink.json
+/home/constg/Documents/playground/csharp/sample1/obj/Debug/net8.0/sample1.dll
+/home/constg/Documents/playground/csharp/sample1/obj/Debug/net8.0/refint/sample1.dll
+/home/constg/Documents/playground/csharp/sample1/obj/Debug/net8.0/sample1.pdb
+/home/constg/Documents/playground/csharp/sample1/obj/Debug/net8.0/sample1.genruntimeconfig.cache
+/home/constg/Documents/playground/csharp/sample1/obj/Debug/net8.0/ref/sample1.dll

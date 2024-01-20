@@ -1,0 +1,15 @@
+/home/constg/Documents/playground/csharp/HelloWorld/bin/Debug/net8.0/HelloWorld
+/home/constg/Documents/playground/csharp/HelloWorld/bin/Debug/net8.0/HelloWorld.deps.json
+/home/constg/Documents/playground/csharp/HelloWorld/bin/Debug/net8.0/HelloWorld.runtimeconfig.json
+/home/constg/Documents/playground/csharp/HelloWorld/bin/Debug/net8.0/HelloWorld.dll
+/home/constg/Documents/playground/csharp/HelloWorld/bin/Debug/net8.0/HelloWorld.pdb
+/home/constg/Documents/playground/csharp/HelloWorld/obj/Debug/net8.0/HelloWorld.GeneratedMSBuildEditorConfig.editorconfig
+/home/constg/Documents/playground/csharp/HelloWorld/obj/Debug/net8.0/HelloWorld.AssemblyInfoInputs.cache
+/home/constg/Documents/playground/csharp/HelloWorld/obj/Debug/net8.0/HelloWorld.AssemblyInfo.cs
+/home/constg/Documents/playground/csharp/HelloWorld/obj/Debug/net8.0/HelloWorld.csproj.CoreCompileInputs.cache
+/home/constg/Documents/playground/csharp/HelloWorld/obj/Debug/net8.0/HelloWorld.sourcelink.json
+/home/constg/Documents/playground/csharp/HelloWorld/obj/Debug/net8.0/HelloWorld.dll
+/home/constg/Documents/playground/csharp/HelloWorld/obj/Debug/net8.0/refint/HelloWorld.dll
+/home/constg/Documents/playground/csharp/HelloWorld/obj/Debug/net8.0/HelloWorld.pdb
+/home/constg/Documents/playground/csharp/HelloWorld/obj/Debug/net8.0/HelloWorld.genruntimeconfig.cache
+/home/constg/Documents/playground/csharp/HelloWorld/obj/Debug/net8.0/ref/HelloWorld.dll
