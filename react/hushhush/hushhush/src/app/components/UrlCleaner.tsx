@@ -2,7 +2,6 @@
 
 import { use, useState } from "react";
 import {
-  removeSourceIdentifiers,
   type CleanUrlResult,
   validateUrl,
   generateResultsList,
