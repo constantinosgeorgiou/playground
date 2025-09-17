@@ -1,58 +1,140 @@
-// taxcy
+use clap::{Parser, Subcommand, ValueEnum};
+use num_traits::ToPrimitive;
+use rusty_money::{FormattableCurrency, Money, iso};
 
-// calc: Calculate the Cyprus Personal Income Tax (PIT)
-// -m, --monthly <salary>
-// -a, --annual <salary>
-// -13, --is-13-month
-
-// info: Display a table lists the PIT rates and bands currently applicable to individuals.
-
-
-use rusty_money::{Money, iso};
-use cli_table::{print_stdout, Table};
-
-#[derive(Table)]
-struct PersonalIncomeTax {
-    #[table(title = "From")]
-    from: Money<'static, iso::Currency>,
-    #[table(title = "To")]
-    to: Money<'static, iso::Currency>,
-    #[table(title = "Tax rate (%)")]
+struct PersonalIncomeTax<'a, C: FormattableCurrency> {
+    from: Money<'a, C>,
+    to: Money<'a, C>,
     rate: f64,
 }
 
-fn info(pits: Vec<PersonalIncomeTax>) {
-    print_stdout(pits);
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    #[command(subcommand)]
+    command: Option<Commands>,
 }
 
-fn main() {
-    let mut pit_rates: Vec<PersonalIncomeTax> = Vec::new();
+#[derive(Subcommand)]
+enum Commands {
+    /// Displays tax info.
+    Info {},
+    /// Calculates income tax.
+    Calc {
+        salary: String,
+        #[arg(short, long)]
+        /// The type of salary.
+        r#type: SalaryType,
+        #[arg(long("include-13-month"))]
+        /// When the given salary includes a 13th month salary.
+        include13month: bool,
+    },
+}
 
-    pit_rates.push(PersonalIncomeTax {
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+enum SalaryType {
+    Annual,
+    Monthly,
+    // Weekly,
+    // Daily,
+    // Hourly,
+}
+
+fn calc<C: FormattableCurrency>(
+    salary: &Money<C>,
+    r#type: &SalaryType,
+    include13month: &bool,
+    pits: &Vec<PersonalIncomeTax<C>>,
+) {
+    let mut remaining = salary.amount().to_f64().unwrap();
+    let mut total_tax = 0.0;
+    for pit in pits {
+        let from = pit.from.amount().to_f64().unwrap();
+        let to = pit.to.amount().to_f64().unwrap();
+
+        if pit.from < *salary && *salary < pit.to {
+            let tax = salary.;
+            total_tax += tax;
+        }
+
+        if remaining <= 0.0 {
+            break;
+        }
+        let upper = if to < 0.0 {
+            remaining
+        } else {
+            to.min(remaining)
+        };
+        if upper > from {
+            let taxable = upper - from;
+            let tax = taxable * pit.rate;
+            total_tax += tax;
+        }
+    }
+    println!("Total tax: {:.2}", total_tax);
+}
+
+fn info<C: FormattableCurrency>(pits: &Vec<PersonalIncomeTax<C>>) {
+    for pit in pits {
+        println!("{} {} {}", pit.from, pit.to, pit.rate)
+    }
+}
+
+fn init_pits<'a>() -> Vec<PersonalIncomeTax<'a, iso::Currency>> {
+    let mut pits: Vec<PersonalIncomeTax<'a, iso::Currency>> = Vec::new();
+
+    pits.push(PersonalIncomeTax {
         from: Money::from_major(0, iso::EUR),
         to: Money::from_major(19500, iso::EUR),
         rate: 0.00,
     });
-    pit_rates.push(PersonalIncomeTax {
-        from: Money::from_major(19501, iso::EUR),
+    pits.push(PersonalIncomeTax {
+        from: Money::from_major(19500, iso::EUR),
         to: Money::from_major(28000, iso::EUR),
         rate: 0.20,
     });
-    pit_rates.push(PersonalIncomeTax {
-        from: Money::from_major(28001, iso::EUR),
+    pits.push(PersonalIncomeTax {
+        from: Money::from_major(28000, iso::EUR),
         to: Money::from_major(36300, iso::EUR),
         rate: 0.25,
     });
-    pit_rates.push(PersonalIncomeTax {
-        from: Money::from_major(36301, iso::EUR),
+    pits.push(PersonalIncomeTax {
+        from: Money::from_major(36300, iso::EUR),
         to: Money::from_major(60000, iso::EUR),
         rate: 0.30,
     });
-    pit_rates.push(PersonalIncomeTax {
-        from: Money::from_major(60001, iso::EUR),
-        to: Money::from_major(i64::MAX, iso::EUR),
-        rate: 0.35,
+    pits.push(PersonalIncomeTax {
+        from: Money::from_major(60000, iso::EUR),
+        to: Money::from_major(-1, iso::EUR),
+        rate: 0.30,
     });
 
-    info(pit_rates)
+    return pits;
+}
+
+fn main() {
+    let cli = Cli::parse();
+
+    let pits = init_pits();
+
+    match &cli.command {
+        Some(Commands::Info {}) => {
+            info(&pits);
+        }
+        Some(Commands::Calc {
+            salary,
+            r#type,
+            include13month,
+        }) => {
+            let salary_money = match Money::from_str(salary, iso::EUR) {
+                Ok(m) => m,
+                Err(e) => {
+                    eprintln!("Failed to parse salary: {}", e);
+                    std::process::exit(1);
+                }
+            };
+            calc(&salary_money, r#type, include13month, &pits);
+        }
+        None => {}
+    }
 }
