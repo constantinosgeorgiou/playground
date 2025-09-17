@@ -1,0 +1,64 @@
+{
+  "global": {
+    "domains": ["*"],
+    "sourceidentifiers": [
+      "utm_source",
+      "utm_medium", 
+      "utm_campaign",
+      "utm_term",
+      "utm_content",
+      "utm_id",
+      "utm_name",
+      "gclid",
+      "fbclid",
+      "msclkid",
+      "ref",
+      "referrer"
+    ]
+  },
+
+  "instagram": {
+    "domains": ["instagram.com"],
+    "sourceidentifiers": ["igsh"]
+  },
+
+  "youtube": {
+    "domains": ["youtube.com", "youtu.be"],
+    "sourceidentifiers": ["si"]
+  },
+
+  "linkedin": {
+    "domains": ["linkedin.com"],
+    "sourceidentifiers": ["rcm"]
+  },
+
+  "twitter": {
+    "domains": ["twitter.com", "x.com"],
+    "sourceidentifiers": []
+  },
+
+  "facebook": {
+    "domains": ["facebook.com"],
+    "sourceidentifiers": []
+  },
+
+  "reddit": {
+    "domains": ["reddit.com"],
+    "sourceidentifiers": []
+  },
+
+  "tiktok": {
+    "domains": ["tiktok.com"],
+    "sourceidentifiers": []
+  },
+
+  "github": {
+    "domains": ["github.com"],
+    "sourceidentifiers": []
+  },
+
+  "medium": {
+    "domains": ["medium.com"],
+    "sourceidentifiers": []
+  }
+}
