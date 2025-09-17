@@ -2,7 +2,8 @@ import sourceIdentifiers from "@/app/data/SourceIdentifiers.json";
 
 export interface PlatformInfo {
   name: string;
-  confidence: "high" | "low";
+  slug: string;
+  confidence: "exact" | "approximate";
 }
 
 export interface QueryParamInfo {
@@ -15,7 +16,7 @@ export interface QueryParamInfo {
 export interface CleanUrlResult {
   url: string;
   platform?: PlatformInfo;
-  confidence: "high" | "low";
+  confidence: "exact" | "approximate";
   queryParams: QueryParamInfo[];
 }
 
@@ -126,14 +127,16 @@ export function identifyPlatform(url: URL | string): PlatformInfo | undefined {
     const hostname = url.hostname.toLowerCase();
 
     // Check platform-specific domains (excluding global)
-    for (const [platformName, config] of Object.entries(sourceIdentifiers)) {
+    for (const [platformSlug, config] of Object.entries(sourceIdentifiers)) {
       // Skip global
-      if (platformName === "global") continue;
+      if (platformSlug === "global") continue;
 
       if (config.domains.some((domain) => hostname.includes(domain))) {
+
         return {
-          name: platformName,
-          confidence: "high",
+          name: config.name,
+          slug: platformSlug,
+          confidence: "exact",
         };
       }
     }
@@ -153,8 +156,8 @@ export function analyzeQueryParams(
 
     const globalSourceIdentifiers = sourceIdentifiers.global.sourceidentifiers;
     const platformSourceIdentifiers = platform
-      ? sourceIdentifiers[platform.name as keyof typeof sourceIdentifiers]
-          .sourceidentifiers
+      ? sourceIdentifiers[platform.slug as keyof typeof sourceIdentifiers]
+        .sourceidentifiers
       : [];
     const allSourceIdentifiers = [
       ...globalSourceIdentifiers,
@@ -211,7 +214,9 @@ export function generateResultsList(url: URL): CleanUrlResult[] {
   console.log("platform:", platform);
   if (platform) {
     const platformConfig =
-      sourceIdentifiers[platform.name as keyof typeof sourceIdentifiers];
+      sourceIdentifiers[platform.slug as keyof typeof sourceIdentifiers];
+    console.log('platformConfig', platformConfig);
+
     if (platformConfig && "sourceidentifiers" in platformConfig) {
       platformConfig.sourceidentifiers.forEach((identifier: string) => {
         scrubbedUrl.searchParams.delete(identifier);
@@ -222,7 +227,7 @@ export function generateResultsList(url: URL): CleanUrlResult[] {
     results.push({
       url: scrubbedUrl.toString(),
       platform,
-      confidence: "high",
+      confidence: "exact",
       queryParams: analyzeQueryParams(url, platform),
     });
 
@@ -254,7 +259,7 @@ export function generateResultsList(url: URL): CleanUrlResult[] {
     const cleanUrlResult: CleanUrlResult = {
       url: combinationUrl.toString(),
       platform,
-      confidence: platform ? "high" : "low",
+      confidence: platform ? "exact" : "approximate",
       queryParams: analyzeQueryParams(url, platform),
     };
 

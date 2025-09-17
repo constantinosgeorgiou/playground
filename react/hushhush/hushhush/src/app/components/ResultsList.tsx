@@ -9,6 +9,7 @@ import IconButton from "@mui/material/IconButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Link from "@mui/material/Link";
 import Divider from "@mui/material/Divider";
+import { GpsFixed, GpsNotFixed } from "@mui/icons-material";
 
 interface ResultsProps {
   results: CleanUrlResult[];
@@ -73,10 +74,10 @@ function ResultsListItem({
       variant="outlined"
       sx={{
         borderColor:
-          result.confidence === "high" ? "success.light" : "warning.light",
+          result.confidence === "exact" ? "success.light" : "warning.light",
       }}
     >
-      <CardContent>
+      <CardContent sx={{ p: 3 }}>
         <Stack
           direction="row"
           spacing={1}
@@ -86,11 +87,14 @@ function ResultsListItem({
         >
           <Chip
             label={
-              result.confidence === "high"
-                ? "High Confidence"
-                : "Low Confidence"
+              result.confidence === "exact"
+                ? "Exact Result"
+                : "Approximate Result"
             }
-            color={result.confidence === "high" ? "success" : "warning"}
+            icon={
+              result.confidence === "exact" ? <GpsFixed /> : <GpsNotFixed />
+            }
+            color={result.confidence === "exact" ? "success" : "warning"}
             size="small"
           />
           {result.platform && (
@@ -102,7 +106,7 @@ function ResultsListItem({
           direction={{ xs: "column", sm: "row" }}
           alignItems={{ xs: "flex-start", sm: "center" }}
           spacing={1}
-          sx={{ mb: 1 }}
+          sx={{ my: 4 }}
         >
           <Link
             href={result.url}
@@ -110,20 +114,24 @@ function ResultsListItem({
             rel="noopener noreferrer"
             underline="hover"
             variant="body2"
-            sx={{ wordBreak: "break-all", flex: 1 }}
+            sx={{ wordBreak: "break-all", flex: 1, fontSize: "1.3em" }}
           >
             {result.url}
           </Link>
-          <IconButton
-            aria-label="Copy URL"
-            onClick={() => onCopy(result.url)}
-            size="small"
-          >
-            <ContentCopyIcon fontSize="small" />
-          </IconButton>
+
+          {window.isSecureContext && (
+            <IconButton
+              aria-label="Copy URL"
+              onClick={() => onCopy(result.url)}
+              size="small"
+            >
+              <ContentCopyIcon fontSize="small" />
+            </IconButton>
+          )}
         </Stack>
 
-        <Divider />
+        <Divider sx={{ my: 2 }} />
+
         <QueryParamsList params={result.queryParams} />
       </CardContent>
     </Card>

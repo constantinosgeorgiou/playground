@@ -24,6 +24,7 @@ function UrlCleaner() {
 
     try {
       validUrl = validateUrl(url);
+      console.log("validURL", validUrl);
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -36,7 +37,9 @@ function UrlCleaner() {
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+    if (window.isSecureContext && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    }
   };
 
   return (
