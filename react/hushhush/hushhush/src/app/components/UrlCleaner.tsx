@@ -5,6 +5,7 @@ import {
   type CleanUrlResult,
   validateUrl,
   generateResultsList,
+  generateCleanUrlResult,
 } from "../utils/urlUtils";
 import UrlForm from "./UrlForm";
 import ResultsList from "./ResultsList";
@@ -15,6 +16,32 @@ function UrlCleaner() {
   const [url, setUrl] = useState("");
   const [results, setResults] = useState<CleanUrlResult[]>([]);
   const [error, setError] = useState("");
+
+  const handleQueryParamChange = (paramName: string, isRemoved: boolean) => {
+    setResults(currentResults => 
+      currentResults.map(result => {
+        const updatedQueryParams = result.queryParams.map(param => 
+          param.name === paramName ? { ...param, isRemoved } : param
+        );
+
+        const newUrl = new URL(result.url);
+
+        updatedQueryParams.forEach(param => {
+          if (!param.isRemoved) {
+            newUrl.searchParams.set(param.name, param.value);
+          } else {
+            newUrl.searchParams.delete(param.name);
+          }
+        });
+
+        return {
+          ...result,
+          url: newUrl.toString(),
+          queryParams: updatedQueryParams
+        };
+      })
+    );
+  };
 
   const handleUrlSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -33,7 +60,7 @@ function UrlCleaner() {
       return;
     }
 
-    setResults(generateResultsList(new URL(validUrl)));
+    setResults([generateCleanUrlResult(new URL(validUrl))]);
   };
 
   const copyToClipboard = (text: string) => {
@@ -51,7 +78,7 @@ function UrlCleaner() {
           onUrlChange={setUrl}
           onSubmit={handleUrlSubmit}
         />
-        <ResultsList results={results} onCopy={copyToClipboard} />
+        <ResultsList results={results} onCopy={copyToClipboard} handleQueryParamChange={handleQueryParamChange} />
       </Container>
     </Box>
   );

@@ -9,7 +9,7 @@ export interface PlatformInfo {
 export interface QueryParamInfo {
   name: string;
   value: string;
-  isActive: boolean;
+  isRemoved: boolean;
   isSourceIdentifier: boolean;
 }
 
@@ -169,7 +169,7 @@ export function analyzeQueryParams(
       queryParams.push({
         name,
         value,
-        isActive: true,
+        isRemoved: isSourceIdentifier,
         isSourceIdentifier,
       });
     });
@@ -201,6 +201,36 @@ function generatePowerSet(array: Array<string>) {
     powerset.sort((a, b) => b.length - a.length);
   }
   return powerset;
+}
+
+export function generateCleanUrlResult(url: URL): CleanUrlResult {
+  const scrubbedUrl = new URL(url);
+
+  sourceIdentifiers.global.sourceidentifiers.forEach((identifier) => {
+    scrubbedUrl.searchParams.delete(identifier);
+  });
+
+  const platform = identifyPlatform(scrubbedUrl);
+
+  if (platform) {
+    const platformConfig =
+      sourceIdentifiers[platform.slug as keyof typeof sourceIdentifiers];
+
+    if (platformConfig && "sourceidentifiers" in platformConfig) {
+      platformConfig.sourceidentifiers.forEach((identifier: string) => {
+        scrubbedUrl.searchParams.delete(identifier);
+      });
+    }
+  }
+
+  const result: CleanUrlResult = {
+    url: scrubbedUrl.toString(),
+    platform,
+    confidence: platform ? "exact" : "approximate",
+    queryParams: analyzeQueryParams(url, platform),
+  };
+
+  return result;
 }
 
 export function generateResultsList(url: URL): CleanUrlResult[] {

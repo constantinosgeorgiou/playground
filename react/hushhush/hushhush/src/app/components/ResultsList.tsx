@@ -10,19 +10,22 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Link from "@mui/material/Link";
 import Divider from "@mui/material/Divider";
 import { GpsFixed, GpsNotFixed } from "@mui/icons-material";
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Paper, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import RemoveCircleOutlineSharpIcon from '@mui/icons-material/RemoveCircleOutlineSharp';
 import CheckCircleOutlineSharpIcon from '@mui/icons-material/CheckCircleOutlineSharp';
 
 interface ResultsProps {
   results: CleanUrlResult[];
+  handleQueryParamChange: (paramName: string, isRemoved: boolean) => void;
   onCopy: (text: string) => void;
 }
 
 function QueryParamsList({
   params,
+  handleQueryParamChange
 }: {
   params: NonNullable<CleanUrlResult["queryParams"]>;
+  handleQueryParamChange: (paramName: string, isRemoved: boolean) => void;
 }) {
   if (params.length === 0) {
     return (
@@ -44,15 +47,17 @@ function QueryParamsList({
         <Table sx={{ minWidth: 650 }} aria-label="Query Parameters Table">
           <TableHead>
             <TableRow>
-              <TableCell>Action</TableCell>
-              <TableCell>Parameter</TableCell>
+              <TableCell>Removed</TableCell>
+              <TableCell>Name</TableCell>
               <TableCell>Value</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {params.map((param, index) => (
               <TableRow key={param.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                <TableCell>{param.isSourceIdentifier ? <RemoveCircleOutlineSharpIcon color="error" /> : <CheckCircleOutlineSharpIcon color="info" />}</TableCell>
+                <TableCell>
+                  <Switch checked={param.isRemoved} onChange={(e) => handleQueryParamChange(param.name, e.target.checked)} />
+                </TableCell>
                 <TableCell>{param.name}</TableCell>
                 <TableCell>{param.value}</TableCell>
               </TableRow>
@@ -95,9 +100,11 @@ function QueryParamsList({
 function ResultsListItem({
   result,
   onCopy,
+  handleQueryParamChange
 }: {
   result: CleanUrlResult;
   onCopy: (text: string) => void;
+  handleQueryParamChange: (text: string) => void;
 }) {
   return (
     <Card
@@ -162,13 +169,13 @@ function ResultsListItem({
 
         <Divider sx={{ my: 2 }} />
 
-        <QueryParamsList params={result.queryParams} />
+        <QueryParamsList params={result.queryParams} handleQueryParamChange={handleQueryParamChange} />
       </CardContent>
     </Card>
   );
 }
 
-export default function ResultsList({ results, onCopy }: ResultsProps) {
+export default function ResultsList({ results, onCopy, handleQueryParamChange }: ResultsProps) {
   if (results.length === 0) return null;
   return (
     <Box sx={{ mt: 3 }}>
@@ -177,7 +184,7 @@ export default function ResultsList({ results, onCopy }: ResultsProps) {
       </Typography>
       <Stack spacing={2}>
         {results.map((r, i) => (
-          <ResultsListItem key={i} result={r} onCopy={onCopy} />
+          <ResultsListItem key={i} result={r} onCopy={onCopy} handleQueryParamChange={handleQueryParamChange} />
         ))}
       </Stack>
     </Box>

@@ -8,7 +8,7 @@ export interface PlatformInfo {
 export interface QueryParamInfo {
 	name: string;
 	value: string;
-	isActive: boolean;
+	isRemoved: boolean;
 	isSourceIdentifier: boolean;
 }
 
@@ -67,12 +67,12 @@ export function identifyPlatform(url: string): PlatformInfo | undefined {
 	try {
 		const urlObj = new URL(normalizeUrl(url));
 		const hostname = urlObj.hostname.toLowerCase();
-		
+
 		// Check platform-specific domains (excluding global)
 		for (const [platformName, config] of Object.entries(sourceIdentifiers)) {
 			// Skip global
 			if (platformName === 'global') continue;
-			
+
 			if (config.domains.some(domain => hostname.includes(domain))) {
 				return {
 					name: platformName,
@@ -80,7 +80,7 @@ export function identifyPlatform(url: string): PlatformInfo | undefined {
 				};
 			}
 		}
-		
+
 		return undefined;
 	} catch {
 		return undefined;
@@ -91,27 +91,31 @@ export function analyzeQueryParams(url: string, platform?: PlatformInfo): QueryP
 	try {
 		const urlObj = new URL(normalizeUrl(url));
 		const queryParams: QueryParamInfo[] = [];
-		
+
 		// Get global source identifiers (always stripped)
 		const globalSourceIdentifiers = sourceIdentifiers.global.sourceidentifiers;
-		
+
 		// Get platform-specific source identifiers
 		const platformSourceIdentifiers = platform ? sourceIdentifiers[platform.name as keyof typeof sourceIdentifiers].sourceidentifiers : [];
-		
+
 		// Combine all source identifiers to remove
 		const allSourceIdentifiers = [...globalSourceIdentifiers, ...platformSourceIdentifiers];
-		
+
+		console.log('allSourceIdentifiers', allSourceIdentifiers);
+
 		// Analyze each query parameter
 		urlObj.searchParams.forEach((value, name) => {
 			const isSourceIdentifier = allSourceIdentifiers.includes(name);
+			console.log('isSourceIdentifier', isSourceIdentifier);
+
 			queryParams.push({
 				name,
 				value,
-				isActive: true,
+				isRemoved: isSourceIdentifier,
 				isSourceIdentifier
 			});
 		});
-		
+
 		return queryParams;
 	} catch {
 		return [];
@@ -139,8 +143,8 @@ export function removeSourceIdentifiers(url: string): CleanUrlResult[] {
 			confidence: platform ? 'high' : 'low',
 			queryParams: [] // No query parameters
 		});
-		
-		console.log('1 results',results);
+
+		console.log('1 results', results);
 
 		// Generate combinations with different query parameters
 		const queryParams = new URLSearchParams(urlObj.search);
@@ -158,7 +162,7 @@ export function removeSourceIdentifiers(url: string): CleanUrlResult[] {
 				queryParams.delete(identifier);
 			});
 		}
-		
+
 		// Add URL with cleaned query parameters
 		if (queryParams.toString()) {
 			const cleanedUrl = `${urlObj.protocol}//${urlObj.hostname}${urlObj.pathname}?${queryParams.toString()}`;
@@ -197,7 +201,7 @@ function generatePowerSet(array: Array<string>) {
 	for (let i = 0; i < Math.pow(2, array.length); i++) {
 		const subset = [];
 		for (let j = 0; j < array.length; j++) {
-			if (i & (1<<j)) {
+			if (i & (1 << j)) {
 				subset.push(array[j]);
 			}
 		}
