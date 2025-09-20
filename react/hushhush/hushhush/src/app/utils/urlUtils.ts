@@ -51,18 +51,6 @@ export function normalizeUrl(input: string): string {
   return `https://${trimmed}`;
 }
 
-/**
- * Check whether the URL contains a Pseudonymized Facebook Identifier (PFBID).
- *
- * @link https://about.fb.com/news/2022/09/deterring-scraping-by-protecting-facebook-identifiers/
- *
- * @param url URL.
- * @returns {boolean} true if the URL is a Pseudonymized Facebook Identifier (PFBID) link, otherwise false.
- */
-export function hasPseudonymizedFacebookId(url: URL): boolean {
-  const isPFbId = /facebook\.com\/share\/p\/[a-zA-Z0-9]+/;
-  return isPFbId.test(url.toString());
-}
 
 export function appendUrlProtocol(url: string, protocol: string): string {
   return isProtocolRelativeUrl(url)
@@ -102,10 +90,24 @@ export function validateUrl(input: string): string {
       );
     }
 
-    if (hasPseudonymizedFacebookId(urlObj)) {
-      throw new ValidationError(
-        `Pseudonymized Facebook Identifier (PFBID) detected.\nThis link has tracking built-in which can not be removed!\nRead more: [TODO: Insert URL here].`,
-      );
+    const platform = identifyPlatform(urlObj);
+
+    if (platform) {
+
+      const platformConfig =
+        sourceIdentifiers[platform.slug as keyof typeof sourceIdentifiers];
+
+      if (platformConfig && "exceptions" in platformConfig) {
+
+        platformConfig.exceptions.forEach((exception: any) => {
+          const regex = new RegExp(exception.regex);
+
+          if (regex.test(urlObj.toString())) {
+            throw new ValidationError(exception.exceptionMessage);
+          }
+        });
+      }
+
     }
 
     return urlObj.toString();
@@ -126,9 +128,7 @@ export function identifyPlatform(url: URL | string): PlatformInfo | undefined {
 
     const hostname = url.hostname.toLowerCase();
 
-    // Check platform-specific domains (excluding global)
     for (const [platformSlug, config] of Object.entries(sourceIdentifiers)) {
-      // Skip global
       if (platformSlug === "global") continue;
 
       if (config.domains.some((domain) => hostname.includes(domain))) {
@@ -174,6 +174,11 @@ export function analyzeQueryParams(
       });
     });
 
+    queryParams.sort((a, b) => {
+      // Sort source identifiers to the end of the list.
+      return (a.isSourceIdentifier ? 1 : 0) - (b.isSourceIdentifier ? 1 : 0);
+    });
+
     return queryParams;
   } catch {
     return [];
@@ -199,8 +204,6 @@ function generatePowerSet(array: Array<string>) {
 }
 
 export function generateResultsList(url: URL): CleanUrlResult[] {
-  console.log("URL:", url);
-
   const results: CleanUrlResult[] = [];
 
   const scrubbedUrl = new URL(url);
@@ -208,21 +211,17 @@ export function generateResultsList(url: URL): CleanUrlResult[] {
   sourceIdentifiers.global.sourceidentifiers.forEach((identifier) => {
     scrubbedUrl.searchParams.delete(identifier);
   });
-  console.log("URL:", scrubbedUrl);
 
   const platform = identifyPlatform(scrubbedUrl);
-  console.log("platform:", platform);
   if (platform) {
     const platformConfig =
       sourceIdentifiers[platform.slug as keyof typeof sourceIdentifiers];
-    console.log('platformConfig', platformConfig);
 
     if (platformConfig && "sourceidentifiers" in platformConfig) {
       platformConfig.sourceidentifiers.forEach((identifier: string) => {
         scrubbedUrl.searchParams.delete(identifier);
       });
     }
-    console.log("URL:", scrubbedUrl);
 
     results.push({
       url: scrubbedUrl.toString(),
@@ -237,8 +236,6 @@ export function generateResultsList(url: URL): CleanUrlResult[] {
   const searchParamsPowerSet = generatePowerSet(
     Array.from(scrubbedUrl.searchParams.keys()),
   );
-
-  console.log("searchParamsPowerSet", searchParamsPowerSet);
 
   searchParamsPowerSet.forEach((combination) => {
     // Create a new URL object for this combination

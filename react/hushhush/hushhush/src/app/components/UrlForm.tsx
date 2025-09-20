@@ -6,7 +6,6 @@ import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import Typography from "@mui/material/Typography";
 import { AlertTitle } from "@mui/material";
-import { LocalLaundryService } from "@mui/icons-material";
 
 interface UrlFormProps {
   url: string;
@@ -60,7 +59,6 @@ export default function UrlForm({
           size="medium"
           aria-label="Clean link"
           title="Clean link"
-          endIcon={<LocalLaundryService />}
         >
           Clean link
         </Button>

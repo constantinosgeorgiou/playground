@@ -42,3 +42,35 @@ example.com/test?a=1&b=2&c=3
 This should be displayed instead of high and low confidence.
 Exact result (full target icon)
 Approximate result (empty target icon)
+
+## FAQ
+
+## How do you clean the links?
+
+A crowded sourced file is used containing known source identifiers that various sites are using to track the links.
+
+### Do you collect any data?
+
+No. Everything is done on your device.
+
+_Technical answer:_ To build this site Next.JS was used, which does collect anonymous [telemetry](https://nextjs.org/telemetry). We switch this feature off, so that not even general usage information is sent to their servers.
+
+What are Urchin Tracking Module (UTM) parameters?
+
+> Urchin Tracking Module (UTM) parameters are five variants of URL parameters used by marketers to track the effectiveness of online marketing campaigns across traffic sources and publishing media. They were introduced by Google Analytics' predecessor Urchin and, consequently, are supported out of the box by Google Analytics. The UTM parameters in a URL identify the campaign that refers traffic to a specific website, and attribute the browser's website session and the sessions after that until the campaign attribution window expires to it. The parameters can be parsed by analytics tools and used to populate reports.
+>
+> Source: Wikipedia
+
+### How can I contribute?
+
+With code:
+
+- You can contribute code by having a look at the open issues and creating a Pull Request.
+
+With suggestions:
+
+- Open a new issue to tell us which site to add.
+
+With issue reports:
+
+- Open a new issue to report to us an issue that came up with the site.

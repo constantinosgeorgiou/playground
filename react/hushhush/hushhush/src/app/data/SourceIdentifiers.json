@@ -1,6 +1,6 @@
 {
   "global": {
-    "name": "",
+    "name": "Global Tracking Parameters",
     "domains": [
       "*"
     ],
@@ -16,6 +16,33 @@
       "msclkid",
       "ref",
       "referrer"
+    ]
+  },
+  "amazon": {
+    "name": "Amazon",
+    "domains": [
+      "amazon.com",
+      "amazon.co.uk",
+      "amazon.de",
+      "amazon.ca",
+      "amazon.fr",
+      "amazon.it",
+      "amazon.es",
+      "amazon.in",
+      "amazon.co.jp"
+    ],
+    "sourceidentifiers": [
+      "tag",
+      "ascsubtag",
+      "c",
+      "dib",
+      "dib_tag",
+      "keywords",
+      "qid",
+      "s",
+      "sr",
+      "ts_id",
+      "th"
     ]
   },
   "instagram": {
@@ -42,9 +69,7 @@
     "domains": [
       "linkedin.com"
     ],
-    "sourceidentifiers": [
-      "rcm"
-    ]
+    "sourceidentifiers": []
   },
   "twitter": {
     "name": "X",
@@ -62,6 +87,13 @@
     ],
     "sourceidentifiers": [
       "fbclid"
+    ],
+    "exceptions": [
+      {
+        "name": "Pseudonymized Facebook Identifier (PFBID)",
+        "regex": "(fb|facebook)\\.com\/share\/p\/[a-zA-Z0-9]+",
+        "exceptionMessage": "Pseudonymized Facebook Identifier (PFBID) detected.\nThis link has tracking built-in which can not be removed!\nRead more: https://about.fb.com/news/2022/09/deterring-scraping-by-protecting-facebook-identifiers/."
+      }
     ]
   },
   "reddit": {

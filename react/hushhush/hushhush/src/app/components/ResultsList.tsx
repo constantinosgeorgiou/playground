@@ -10,6 +10,9 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Link from "@mui/material/Link";
 import Divider from "@mui/material/Divider";
 import { GpsFixed, GpsNotFixed } from "@mui/icons-material";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import RemoveCircleOutlineSharpIcon from '@mui/icons-material/RemoveCircleOutlineSharp';
+import CheckCircleOutlineSharpIcon from '@mui/icons-material/CheckCircleOutlineSharp';
 
 interface ResultsProps {
   results: CleanUrlResult[];
@@ -32,6 +35,33 @@ function QueryParamsList({
       </Typography>
     );
   }
+  return (
+    <Box sx={{ mt: 1 }}>
+      <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+        Query Parameters
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="Query Parameters Table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Action</TableCell>
+              <TableCell>Parameter</TableCell>
+              <TableCell>Value</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {params.map((param, index) => (
+              <TableRow key={param.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                <TableCell>{param.isSourceIdentifier ? <RemoveCircleOutlineSharpIcon color="error" /> : <CheckCircleOutlineSharpIcon color="info" />}</TableCell>
+                <TableCell>{param.name}</TableCell>
+                <TableCell>{param.value}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  )
 
   return (
     <Box sx={{ mt: 1 }}>
