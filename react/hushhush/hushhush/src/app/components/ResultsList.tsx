@@ -13,6 +13,70 @@ import { GpsFixed, GpsNotFixed } from "@mui/icons-material";
 import { Paper, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import RemoveCircleOutlineSharpIcon from '@mui/icons-material/RemoveCircleOutlineSharp';
 import CheckCircleOutlineSharpIcon from '@mui/icons-material/CheckCircleOutlineSharp';
+import { styled } from '@mui/material/styles';
+import { alpha } from '@mui/material/styles';
+
+// Predefined colors for consistency and good contrast
+const paramColors = [
+  '#2196F3', // Blue
+  '#4CAF50', // Green
+  '#F44336', // Red
+  '#FF9800', // Orange
+  '#9C27B0', // Purple
+  '#00BCD4', // Cyan
+  '#FF4081', // Pink
+  '#673AB7', // Deep Purple
+  '#009688', // Teal
+  '#FFC107'  // Amber
+];
+
+const getColorForParam = (paramName: string) => {
+  // Use a simple hash function to get a consistent index for each parameter name
+  const hash = paramName.split('').reduce((acc, char) => {
+    return char.charCodeAt(0) + ((acc << 5) - acc);
+  }, 0);
+  return paramColors[Math.abs(hash) % paramColors.length];
+};
+
+const QueryParamHighlight = styled('span')<{ isactive: string; paramname: string }>(
+  ({ theme, isactive, paramname }) => {
+    const baseColor = getColorForParam(paramname);
+    return {
+      backgroundColor: isactive === 'true' ? alpha(baseColor, 0.2) : 'transparent',
+      borderRadius: theme.shape.borderRadius,
+      padding: '2px 4px',
+      color: isactive === 'true' ? baseColor : 'inherit',
+      transition: 'background-color 0.2s ease, color 0.2s ease',
+      border: isactive === 'true' ? `1px solid ${alpha(baseColor, 0.3)}` : '1px solid transparent',
+    };
+  }
+);
+
+const highlightQueryParams = (url: string, queryParams: NonNullable<CleanUrlResult["queryParams"]>) => {
+  let highlightedUrl = url;
+  const urlObj = new URL(url);
+
+  queryParams.forEach(param => {
+    if (!param.isRemoved) {
+      const paramValue = urlObj.searchParams.get(param.name);
+      const paramPattern = `${param.name}=${encodeURIComponent(paramValue || '')}`;
+      highlightedUrl = highlightedUrl.replace(
+        paramPattern,
+        `<QueryParamHighlight isactive="true" paramname="${param.name}">${paramPattern}</QueryParamHighlight>`
+      );
+    }
+  });
+
+  return highlightedUrl.split(/(<QueryParamHighlight.*?<\/QueryParamHighlight>)/).map((part, index) => {
+    if (part.startsWith('<QueryParamHighlight')) {
+      const content = part.match(/>(.*?)</)?.[1] || '';
+      const paramMatch = part.match(/paramname="([^"]+)"/);
+      const paramName = paramMatch ? paramMatch[1] : '';
+      return <QueryParamHighlight key={index} isactive="true" paramname={paramName}>{content}</QueryParamHighlight>;
+    }
+    return part;
+  });
+};
 
 interface ResultsProps {
   results: CleanUrlResult[];
@@ -58,8 +122,22 @@ function QueryParamsList({
                 <TableCell>
                   <Switch checked={param.isRemoved} onChange={(e) => handleQueryParamChange(param.name, e.target.checked)} />
                 </TableCell>
-                <TableCell>{param.name}</TableCell>
-                <TableCell>{param.value}</TableCell>
+                <TableCell>
+                  <QueryParamHighlight 
+                    isactive={(!param.isRemoved).toString()} 
+                    paramname={param.name}
+                  >
+                    {param.name}
+                  </QueryParamHighlight>
+                </TableCell>
+                <TableCell>
+                  <QueryParamHighlight 
+                    isactive={(!param.isRemoved).toString()} 
+                    paramname={param.name}
+                  >
+                    {param.value}
+                  </QueryParamHighlight>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -104,7 +182,7 @@ function ResultsListItem({
 }: {
   result: CleanUrlResult;
   onCopy: (text: string) => void;
-  handleQueryParamChange: (text: string) => void;
+  handleQueryParamChange: (paramName: string, isRemoved: boolean) => void;
 }) {
   return (
     <Card
@@ -145,16 +223,27 @@ function ResultsListItem({
           spacing={1}
           sx={{ my: 4 }}
         >
-          <Link
-            href={result.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            underline="hover"
-            variant="body2"
-            sx={{ wordBreak: "break-all", flex: 1, fontSize: "1.3em" }}
+          <Box
+            sx={{
+              wordBreak: "break-all",
+              flex: 1,
+              fontSize: "1.3em"
+            }}
           >
-            {result.url}
-          </Link>
+            <Link
+              href={result.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              underline="hover"
+              sx={{
+                color: 'inherit',
+                display: 'inline-block',
+                width: '100%'
+              }}
+            >
+              {highlightQueryParams(result.url, result.queryParams)}
+            </Link>
+          </Box>
 
           {window.isSecureContext && (
             <IconButton
