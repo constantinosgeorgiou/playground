@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import type { CleanUrlResult } from "../utils/urlUtils";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -5,15 +7,15 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
-import IconButton from "@mui/material/IconButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Link from "@mui/material/Link";
 import Divider from "@mui/material/Divider";
 import { GpsFixed, GpsNotFixed } from "@mui/icons-material";
-import { Paper, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Button, Paper, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Zoom } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { alpha } from '@mui/material/styles';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 
 // Predefined colors for consistency and good contrast
 const paramColors = [
@@ -101,7 +103,7 @@ function QueryParamsList({
         Query Parameters
       </Typography>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="Query Parameters Table">
+        <Table stickyHeader aria-label="Query Parameters Table">
           <TableHead>
             <TableRow>
               <TableCell>Active</TableCell>
@@ -112,17 +114,22 @@ function QueryParamsList({
           <TableBody>
             {params.map((param, index) => (
               <TableRow key={param.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                <TableCell>
+                <TableCell padding="checkbox">
                   <Switch checked={!param.isRemoved} onChange={(e) => handleQueryParamChange(param.name, !e.target.checked)} />
                 </TableCell>
                 <TableCell>
-                  <QueryParamHighlight
-                    isactive={(!param.isRemoved).toString()}
-                    paramname={param.name}
-                  >
-                    {param.name}
-                  </QueryParamHighlight>
-                  <VisibilityIcon />
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    {param.isSourceIdentifier && <Tooltip title="Tracker" placement="top" slots={{ transition: Zoom }} arrow>
+                      <VisibilityIcon fontSize="small" sx={{}} />
+                    </Tooltip>}
+
+                    <QueryParamHighlight
+                      isactive={(!param.isRemoved).toString()}
+                      paramname={param.name}
+                    >
+                      {param.name}
+                    </QueryParamHighlight>
+                  </Stack>
                 </TableCell>
                 <TableCell>
                   {!param.value.length ? '' : <QueryParamHighlight
@@ -150,6 +157,16 @@ export default function CleanUrlResultDisplay({
   onCopy: (text: string) => void;
   handleQueryParamChange: (paramName: string, isRemoved: boolean) => void;
 }) {
+  const [isCopied, setIsCopied] = useState<boolean>(false);
+
+  const handleCopy = (text: string) => {
+    onCopy(text);
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 963);
+  };
+
   if (!result) return null;
 
   return (
@@ -167,29 +184,41 @@ export default function CleanUrlResultDisplay({
             direction="row"
             spacing={1}
             alignItems="center"
+            justifyContent="space-between"
             flexWrap="wrap"
             sx={{ mb: 1 }}
           >
-            <Chip
-              label={
-                result.confidence === "exact"
-                  ? "Exact Result"
-                  : "Approximate Result"
-              }
-              icon={
-                result.confidence === "exact" ? <GpsFixed /> : <GpsNotFixed />
-              }
-              color={result.confidence === "exact" ? "success" : "warning"}
-              size="small"
-            />
-            {result.platform && (
-              <Chip label={result.platform.name} color="secondary" size="small" />
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Chip
+                label={
+                  result.confidence === "exact"
+                    ? "Exact Result"
+                    : "Approximate Result"
+                }
+                icon={
+                  result.confidence === "exact" ? <GpsFixed /> : <GpsNotFixed />
+                }
+                color={result.confidence === "exact" ? "success" : "warning"}
+                size="small"
+              />
+              {result.platform && (
+                <Chip label={result.platform.name} color="secondary" size="small" />
+              )}
+            </Stack>
+            {window.isSecureContext && (
+              <Button
+                aria-label="Copy URL"
+                onClick={() => handleCopy(result.url)}
+                size="small"
+                startIcon={isCopied ? <DoneAllIcon /> : <ContentCopyIcon />}
+              >
+                {isCopied ? 'Copied' : 'Copy'}
+              </Button>
             )}
           </Stack>
 
           <Stack
             direction={{ xs: "column", sm: "row" }}
-            alignItems={{ xs: "flex-start", sm: "center" }}
             spacing={1}
             sx={{ my: 4 }}
           >
@@ -214,16 +243,6 @@ export default function CleanUrlResultDisplay({
                 {highlightQueryParams(result.url, result.queryParams)}
               </Link>
             </Box>
-
-            {window.isSecureContext && (
-              <IconButton
-                aria-label="Copy URL"
-                onClick={() => onCopy(result.url)}
-                size="small"
-              >
-                <ContentCopyIcon fontSize="small" />
-              </IconButton>
-            )}
           </Stack>
 
           <Divider sx={{ my: 2 }} />

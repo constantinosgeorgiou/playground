@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState } from "react";
 import {
   type CleanUrlResult,
   validateUrl,
@@ -20,7 +20,7 @@ function UrlCleaner() {
     setCleanUrlResult(currentResult => {
       if (!currentResult) return currentResult;
 
-      const updatedQueryParams = currentResult.queryParams.map(param => 
+      const updatedQueryParams = currentResult.queryParams.map(param =>
         param.name === paramName ? { ...param, isRemoved } : param
       );
 

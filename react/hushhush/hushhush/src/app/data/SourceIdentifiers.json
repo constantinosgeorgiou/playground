@@ -91,7 +91,7 @@
     "exceptions": [
       {
         "name": "Pseudonymized Facebook Identifier (PFBID)",
-        "regex": "(fb|facebook)\\.com\/share\/p\/[a-zA-Z0-9]+",
+        "regex": "(fb|facebook)\\.com\/share\/(p|v)\/[a-zA-Z0-9]+",
         "exceptionMessage": "Pseudonymized Facebook Identifier (PFBID) detected.\nThis link has tracking built-in which can not be removed!\nRead more: https://about.fb.com/news/2022/09/deterring-scraping-by-protecting-facebook-identifiers/."
       }
     ]

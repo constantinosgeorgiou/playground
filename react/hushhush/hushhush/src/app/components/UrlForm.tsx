@@ -59,12 +59,13 @@ export default function UrlForm({
           size="medium"
           aria-label="Clean link"
           title="Clean link"
+          sx={{ fontWeight: 'bold', lineHeight: 1.5 }}
         >
           Clean link
         </Button>
       </Stack>
       {error && (
-        <Alert severity="warning" variant="outlined" sx={{ mt: 2 }}>
+        <Alert severity="warning" variant="outlined" sx={{ mt: 3 }}>
           <AlertTitle variant="h6">Warning</AlertTitle>
           {error.split("\n").map((errorMsg, i) => (
             <Typography variant="body1" key={i} sx={{ my: 2 }}>
