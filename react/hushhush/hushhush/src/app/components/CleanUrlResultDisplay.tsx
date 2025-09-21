@@ -11,10 +11,9 @@ import Link from "@mui/material/Link";
 import Divider from "@mui/material/Divider";
 import { GpsFixed, GpsNotFixed } from "@mui/icons-material";
 import { Paper, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
-import RemoveCircleOutlineSharpIcon from '@mui/icons-material/RemoveCircleOutlineSharp';
-import CheckCircleOutlineSharpIcon from '@mui/icons-material/CheckCircleOutlineSharp';
 import { styled } from '@mui/material/styles';
 import { alpha } from '@mui/material/styles';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 // Predefined colors for consistency and good contrast
 const paramColors = [
@@ -78,12 +77,6 @@ const highlightQueryParams = (url: string, queryParams: NonNullable<CleanUrlResu
   });
 };
 
-interface ResultsProps {
-  results: CleanUrlResult[];
-  handleQueryParamChange: (paramName: string, isRemoved: boolean) => void;
-  onCopy: (text: string) => void;
-}
-
 function QueryParamsList({
   params,
   handleQueryParamChange
@@ -104,14 +97,14 @@ function QueryParamsList({
   }
   return (
     <Box sx={{ mt: 1 }}>
-      <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+      <Typography variant="h6" component={"h2"} sx={{ my: 4 }}>
         Query Parameters
       </Typography>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="Query Parameters Table">
           <TableHead>
             <TableRow>
-              <TableCell>Removed</TableCell>
+              <TableCell>Active</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Value</TableCell>
             </TableRow>
@@ -120,23 +113,24 @@ function QueryParamsList({
             {params.map((param, index) => (
               <TableRow key={param.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell>
-                  <Switch checked={param.isRemoved} onChange={(e) => handleQueryParamChange(param.name, e.target.checked)} />
+                  <Switch checked={!param.isRemoved} onChange={(e) => handleQueryParamChange(param.name, !e.target.checked)} />
                 </TableCell>
                 <TableCell>
-                  <QueryParamHighlight 
-                    isactive={(!param.isRemoved).toString()} 
+                  <QueryParamHighlight
+                    isactive={(!param.isRemoved).toString()}
                     paramname={param.name}
                   >
                     {param.name}
                   </QueryParamHighlight>
+                  <VisibilityIcon />
                 </TableCell>
                 <TableCell>
-                  <QueryParamHighlight 
-                    isactive={(!param.isRemoved).toString()} 
+                  {!param.value.length ? '' : <QueryParamHighlight
+                    isactive={(!param.isRemoved).toString()}
                     paramname={param.name}
                   >
                     {param.value}
-                  </QueryParamHighlight>
+                  </QueryParamHighlight>}
                 </TableCell>
               </TableRow>
             ))}
@@ -145,137 +139,98 @@ function QueryParamsList({
       </TableContainer>
     </Box>
   )
-
-  return (
-    <Box sx={{ mt: 1 }}>
-      <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-        Query Parameters
-      </Typography>
-      <Stack spacing={1}>
-        {params.map((param, index) => (
-          <Stack key={index} direction="row" spacing={1} alignItems="center">
-            <Chip
-              label={param.name}
-              color={param.isSourceIdentifier ? "error" : "primary"}
-              size="small"
-            />
-            <Typography variant="body2">= {param.value}</Typography>
-            {param.isSourceIdentifier && (
-              <Chip
-                label="Source ID"
-                color="error"
-                variant="outlined"
-                size="small"
-              />
-            )}
-          </Stack>
-        ))}
-      </Stack>
-    </Box>
-  );
 }
 
-function ResultsListItem({
+export default function CleanUrlResultDisplay({
   result,
   onCopy,
   handleQueryParamChange
 }: {
-  result: CleanUrlResult;
+  result?: CleanUrlResult;
   onCopy: (text: string) => void;
   handleQueryParamChange: (paramName: string, isRemoved: boolean) => void;
 }) {
-  return (
-    <Card
-      variant="outlined"
-      sx={{
-        borderColor:
-          result.confidence === "exact" ? "success.light" : "warning.light",
-      }}
-    >
-      <CardContent sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-          flexWrap="wrap"
-          sx={{ mb: 1 }}
-        >
-          <Chip
-            label={
-              result.confidence === "exact"
-                ? "Exact Result"
-                : "Approximate Result"
-            }
-            icon={
-              result.confidence === "exact" ? <GpsFixed /> : <GpsNotFixed />
-            }
-            color={result.confidence === "exact" ? "success" : "warning"}
-            size="small"
-          />
-          {result.platform && (
-            <Chip label={result.platform.name} color="secondary" size="small" />
-          )}
-        </Stack>
+  if (!result) return null;
 
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          alignItems={{ xs: "flex-start", sm: "center" }}
-          spacing={1}
-          sx={{ my: 4 }}
-        >
-          <Box
-            sx={{
-              wordBreak: "break-all",
-              flex: 1,
-              fontSize: "1.3em"
-            }}
-          >
-            <Link
-              href={result.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              underline="hover"
-              sx={{
-                color: 'inherit',
-                display: 'inline-block',
-                width: '100%'
-              }}
-            >
-              {highlightQueryParams(result.url, result.queryParams)}
-            </Link>
-          </Box>
-
-          {window.isSecureContext && (
-            <IconButton
-              aria-label="Copy URL"
-              onClick={() => onCopy(result.url)}
-              size="small"
-            >
-              <ContentCopyIcon fontSize="small" />
-            </IconButton>
-          )}
-        </Stack>
-
-        <Divider sx={{ my: 2 }} />
-
-        <QueryParamsList params={result.queryParams} handleQueryParamChange={handleQueryParamChange} />
-      </CardContent>
-    </Card>
-  );
-}
-
-export default function ResultsList({ results, onCopy, handleQueryParamChange }: ResultsProps) {
-  if (results.length === 0) return null;
   return (
     <Box sx={{ mt: 3 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Results
-      </Typography>
-      <Stack spacing={2}>
-        {results.map((r, i) => (
-          <ResultsListItem key={i} result={r} onCopy={onCopy} handleQueryParamChange={handleQueryParamChange} />
-        ))}
-      </Stack>
+
+      <Card
+        variant="outlined"
+        sx={{
+          borderColor:
+            result.confidence === "exact" ? "success.light" : "warning.light",
+        }}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            flexWrap="wrap"
+            sx={{ mb: 1 }}
+          >
+            <Chip
+              label={
+                result.confidence === "exact"
+                  ? "Exact Result"
+                  : "Approximate Result"
+              }
+              icon={
+                result.confidence === "exact" ? <GpsFixed /> : <GpsNotFixed />
+              }
+              color={result.confidence === "exact" ? "success" : "warning"}
+              size="small"
+            />
+            {result.platform && (
+              <Chip label={result.platform.name} color="secondary" size="small" />
+            )}
+          </Stack>
+
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            alignItems={{ xs: "flex-start", sm: "center" }}
+            spacing={1}
+            sx={{ my: 4 }}
+          >
+            <Box
+              sx={{
+                wordBreak: "break-all",
+                flex: 1,
+                fontSize: "1.3em"
+              }}
+            >
+              <Link
+                href={result.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                underline="hover"
+                sx={{
+                  color: 'inherit',
+                  display: 'inline-block',
+                  width: '100%'
+                }}
+              >
+                {highlightQueryParams(result.url, result.queryParams)}
+              </Link>
+            </Box>
+
+            {window.isSecureContext && (
+              <IconButton
+                aria-label="Copy URL"
+                onClick={() => onCopy(result.url)}
+                size="small"
+              >
+                <ContentCopyIcon fontSize="small" />
+              </IconButton>
+            )}
+          </Stack>
+
+          <Divider sx={{ my: 2 }} />
+
+          <QueryParamsList params={result.queryParams} handleQueryParamChange={handleQueryParamChange} />
+        </CardContent>
+      </Card>
     </Box>
   );
 }

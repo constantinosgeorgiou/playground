@@ -43,6 +43,10 @@ This should be displayed instead of high and low confidence.
 Exact result (full target icon)
 Approximate result (empty target icon)
 
+## Motivation
+
+Big platforms use various query parameters to track the sources of the links. Clicking links while logged in helps them build a graph of all the accounts associated with eachother. This is information could be damning for journalists, activists, and people who are vigilant about their online privacy.
+
 ## FAQ
 
 ## How do you clean the links?

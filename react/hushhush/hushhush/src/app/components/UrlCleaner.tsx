@@ -4,43 +4,42 @@ import { use, useState } from "react";
 import {
   type CleanUrlResult,
   validateUrl,
-  generateResultsList,
   generateCleanUrlResult,
 } from "../utils/urlUtils";
 import UrlForm from "./UrlForm";
-import ResultsList from "./ResultsList";
+import CleanUrlResultDisplay from "./CleanUrlResultDisplay";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 
 function UrlCleaner() {
   const [url, setUrl] = useState("");
-  const [results, setResults] = useState<CleanUrlResult[]>([]);
+  const [cleanUrlResult, setCleanUrlResult] = useState<CleanUrlResult>();
   const [error, setError] = useState("");
 
   const handleQueryParamChange = (paramName: string, isRemoved: boolean) => {
-    setResults(currentResults => 
-      currentResults.map(result => {
-        const updatedQueryParams = result.queryParams.map(param => 
-          param.name === paramName ? { ...param, isRemoved } : param
-        );
+    setCleanUrlResult(currentResult => {
+      if (!currentResult) return currentResult;
 
-        const newUrl = new URL(result.url);
+      const updatedQueryParams = currentResult.queryParams.map(param => 
+        param.name === paramName ? { ...param, isRemoved } : param
+      );
 
-        updatedQueryParams.forEach(param => {
-          if (!param.isRemoved) {
-            newUrl.searchParams.set(param.name, param.value);
-          } else {
-            newUrl.searchParams.delete(param.name);
-          }
-        });
+      const newUrl = new URL(currentResult.url);
 
-        return {
-          ...result,
-          url: newUrl.toString(),
-          queryParams: updatedQueryParams
-        };
-      })
-    );
+      updatedQueryParams.forEach(param => {
+        if (!param.isRemoved) {
+          newUrl.searchParams.set(param.name, param.value);
+        } else {
+          newUrl.searchParams.delete(param.name);
+        }
+      });
+
+      return {
+        ...currentResult,
+        url: newUrl.toString(),
+        queryParams: updatedQueryParams
+      };
+    });
   };
 
   const handleUrlSubmit = (event: React.FormEvent) => {
@@ -51,16 +50,14 @@ function UrlCleaner() {
 
     try {
       validUrl = validateUrl(url);
-      console.log("validURL", validUrl);
+      setCleanUrlResult(generateCleanUrlResult(new URL(validUrl)));
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
-        setResults([]);
+        setCleanUrlResult(undefined);
       }
       return;
     }
-
-    setResults([generateCleanUrlResult(new URL(validUrl))]);
   };
 
   const copyToClipboard = (text: string) => {
@@ -71,14 +68,14 @@ function UrlCleaner() {
 
   return (
     <Box sx={{ bgcolor: (t) => t.palette.background.default }}>
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxWidth="md" sx={{ py: 8 }}>
         <UrlForm
           url={url}
           error={error}
           onUrlChange={setUrl}
           onSubmit={handleUrlSubmit}
         />
-        <ResultsList results={results} onCopy={copyToClipboard} handleQueryParamChange={handleQueryParamChange} />
+        <CleanUrlResultDisplay result={cleanUrlResult} onCopy={copyToClipboard} handleQueryParamChange={handleQueryParamChange} />
       </Container>
     </Box>
   );
