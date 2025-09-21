@@ -106,9 +106,9 @@ function QueryParamsList({
         <Table stickyHeader aria-label="Query Parameters Table">
           <TableHead>
             <TableRow>
-              <TableCell>Active</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Value</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Active</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Value</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -119,7 +119,7 @@ function QueryParamsList({
                 </TableCell>
                 <TableCell>
                   <Stack direction="row" alignItems="center" spacing={1}>
-                    {param.isSourceIdentifier && <Tooltip title="Tracker" placement="top" slots={{ transition: Zoom }} arrow>
+                    {param.isSourceIdentifier && <Tooltip title="Tracker" placement="top" slots={{ transition: Zoom }} arrow enterTouchDelay={0}>
                       <VisibilityIcon fontSize="small" sx={{}} />
                     </Tooltip>}
 
